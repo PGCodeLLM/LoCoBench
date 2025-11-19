@@ -128,11 +128,12 @@ The unified score (0-5 scale) combines 17 metrics across 4 dimensions:
 ## 📄 Citation
 
 ```bibtex
-@article{locobench2024,
+@article{Qiu2025LoCoBenchAB,
   title={LoCoBench: A Benchmark for Long-Context Large Language Models in Complex Software Engineering},
-  author={Qiu, Jielin and Liu, Zuxin and Liu, Zhiwei and Murthy, Rithesh and Zhang, Jianguo and Chen, Haolin and Wang, Shiyu and Zhu, Ming and Yang, Liangwei and Tan, Juntao and Cen, Zhepeng and Qian, Cheng and Heinecke, Shelby and Yao, Weiran and Savarese, Silvio and Xiong, Caiming and Wang, Huan},
-  journal={arXiv preprint arXiv:2509.09614},
-  year={2025}
+  author={Jielin Qiu and Zuxin Liu and Zhiwei Liu and Rithesh Murthy and Jianguo Zhang and Haolin Chen and Shiyu Wang and Ming Zhu and Liangwei Yang and Juntao Tan and Zhepeng Cen and Cheng Qian and Shelby Heinecke and Weiran Yao and Silvio Savarese and Caiming Xiong and Huan Wang},
+  journal={ArXiv},
+  year={2025},
+  volume={abs/2509.09614}
 }
 ```
 
