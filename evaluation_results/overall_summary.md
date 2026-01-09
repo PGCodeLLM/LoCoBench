@@ -4,7 +4,7 @@
 **Framework Version:** LoCoBench v1.0
 **Benchmark:** Feature Implementation (best run per provider/difficulty)
 
-## 🏆 Provider Performance by Difficulty
+## 🏆 Model Performance by Difficulty
 
 ⭐ indicates the best score across all providers for that difficulty.
 
