@@ -10,6 +10,9 @@ api:
   # API Keys (set via environment variables for security)
   # openai_api_key: "your-openai-key-here"
   # openai_base_url: "https://your-openai-compatible-endpoint/v1"
+  # anthropic_api_key: "your-anthropic-api-key-here"
+  # anthropic_base_url: "https://api.anthropic.com"
+  # claude_provider: "anthropic"  # or "bedrock"
   # google_api_key: "your-google-key-here"
   # huggingface_token: "your-hf-token-here"
   
@@ -22,8 +25,9 @@ api:
   default_model_google: "gemini-2.5-pro"                      # ✅ Elite: Gemini 2.5 Pro (1M+ tokens)
 
 data:
-  # Local storage directories
-  output_dir: "./data/output"
+  # Local storage directories`
+  # output_dir: "./data/output"
+  output_dir: "./data/output_python"
   generated_dir: "./data/generated"
 
 # =============================================================================

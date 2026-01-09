@@ -119,7 +119,24 @@ class LoCoBenchEvaluator:
     def __init__(self, config: Config, model_name: str = None):
         self.config = config
         self.validator = AutomatedValidator(config)
-        self.llm_generator = MultiLLMGenerator(config)
+        request_log_path = None
+        if model_name:
+            safe_model_name = (
+                model_name.replace("/", "_")
+                .replace("-", "_")
+                .replace(".", "_")
+                .replace(" ", "_")
+                .lower()
+            )
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_dir = Path("logs")
+            log_dir.mkdir(parents=True, exist_ok=True)
+            request_log_path = log_dir / f"requests_{safe_model_name}_{timestamp}.jsonl"
+        self.request_log_path = request_log_path
+        self.llm_generator = MultiLLMGenerator(
+            config,
+            request_log_path=str(request_log_path) if request_log_path else None,
+        )
         self.results: List[ModelEvaluationResult] = []
         self.checkpoint: Optional[EvaluationCheckpoint] = None
         

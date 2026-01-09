@@ -22,6 +22,14 @@ export OPENAI_BASE_URL="https://your-openai-compatible-endpoint/v1"
 export CLAUDE_BEARER_TOKEN="your-claude-bearer-token"
 
 # =============================================================================
+# 🏆 Claude Direct API (Anthropic)
+# =============================================================================
+export ANTHROPIC_API_KEY="your-anthropic-api-key-here"
+# Optional: override base URL (default: https://api.anthropic.com)
+export ANTHROPIC_BASE_URL="https://api.anthropic.com"
+export CLAUDE_PROVIDER="anthropic"  # or "bedrock"
+
+# =============================================================================
 # 🏆 ELITE MODEL 3: Gemini 2.5 Pro (Direct API)  
 # =============================================================================
 export GEMINI_API_KEY="your-gemini-api-key-here"

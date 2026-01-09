@@ -10,6 +10,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -63,6 +64,39 @@ def setup_generation_logging(log_file: str = None) -> logging.Logger:
     gen_logger.addHandler(console_handler)
     
     return gen_logger
+
+
+class RequestResponseLogger:
+    """Append request/response pairs to a JSONL file with redaction."""
+    _redact_keys = {
+        "authorization",
+        "proxy-authorization",
+        "x-api-key",
+        "api-key",
+        "apikey",
+        "x-goog-api-key",
+    }
+
+    def __init__(self, log_path: str):
+        self.log_path = Path(log_path)
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    def _should_redact_key(self, key: str) -> bool:
+        return key.lower() in self._redact_keys
+
+    def _redact(self, value: Any, key_hint: Optional[str] = None) -> Any:
+        if key_hint and self._should_redact_key(key_hint):
+            return "[REDACTED]"
+        if isinstance(value, dict):
+            return {k: self._redact(v, k) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._redact(v) for v in value]
+        return value
+
+    def log(self, entry: Dict[str, Any]) -> None:
+        redacted = self._redact(entry)
+        with self.log_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(redacted, ensure_ascii=True) + "\n")
 
 
 class APIError(Exception):
@@ -288,12 +322,14 @@ class SyntheticProject:
 class MultiLLMGenerator:
     """Multi-LLM system for generating diverse, high-quality synthetic projects"""
     
-    def __init__(self, config: Config, log_file: str = None):
+    def __init__(self, config: Config, log_file: str = None, request_log_path: Optional[str] = None):
         self.config = config
         
         # Setup logging
         self.logger = setup_generation_logging(log_file)
         self.logger.info("🚀 MultiLLMGenerator initialized")
+
+        self.request_logger = RequestResponseLogger(request_log_path) if request_log_path else None
         
         self.rate_limiter = APIRateLimitManager(config)
         self.setup_llm_clients()
@@ -323,6 +359,93 @@ class MultiLLMGenerator:
         # Verification happens in generate_with_claude method
         
         self.logger.info("✅ 3-Elite-Model generator initialized (OpenAI o3 + Gemini 2.5 Pro + Claude 4 Bearer Token)")
+
+    def _log_request_response(self, entry: Dict[str, Any]) -> None:
+        if not self.request_logger:
+            return
+        try:
+            self.request_logger.log(entry)
+        except Exception as exc:
+            self.logger.warning(f"⚠️ Failed to write request log: {exc}")
+
+    def _get_openai_base_url(self) -> str:
+        base_url = self.config.api.openai_base_url or "https://api.openai.com/v1"
+        return base_url.rstrip("/")
+
+    def _log_openai_call(self, request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int = 200) -> None:
+        entry = {
+            "run": {
+                "model": self.config.api.default_model_openai,
+                "provider": "openai",
+                "timestamp": response_ts,
+            },
+            "request": {
+                "timestamp": request_ts,
+                "method": "POST",
+                "url": f"{self._get_openai_base_url()}/chat/completions",
+                "headers": {"authorization": "[REDACTED]", "content-type": "application/json"},
+                "body": request_body,
+            },
+            "response": {
+                "timestamp": response_ts,
+                "status_code": status_code,
+                "headers": {"content-type": "application/json"},
+                "body": response_body,
+            },
+        }
+        self._log_request_response(entry)
+
+    def _log_google_call(self, request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int = 200) -> None:
+        model_name = request_body.get("model", self.config.api.default_model_google)
+        model_suffix = model_name.replace("models/", "")
+        entry = {
+            "run": {
+                "model": self.config.api.default_model_google,
+                "provider": "google",
+                "timestamp": response_ts,
+            },
+            "request": {
+                "timestamp": request_ts,
+                "method": "POST",
+                "url": f"https://generativelanguage.googleapis.com/v1beta/models/{model_suffix}:generateContent",
+                "headers": {"x-goog-api-key": "[REDACTED]", "content-type": "application/json"},
+                "body": request_body,
+            },
+            "response": {
+                "timestamp": response_ts,
+                "status_code": status_code,
+                "headers": {"content-type": "application/json"},
+                "body": response_body,
+            },
+        }
+        self._log_request_response(entry)
+
+    def _log_claude_call(self, model_name: str, url: str, headers: Dict[str, Any], request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int) -> None:
+        entry = {
+            "run": {
+                "model": model_name,
+                "provider": "claude",
+                "timestamp": response_ts,
+            },
+            "request": {
+                "timestamp": request_ts,
+                "method": "POST",
+                "url": url,
+                "headers": headers,
+                "body": request_body,
+            },
+            "response": {
+                "timestamp": response_ts,
+                "status_code": status_code,
+                "headers": {"content-type": "application/json"},
+                "body": response_body,
+            },
+        }
+        self._log_request_response(entry)
+
+    def _get_anthropic_base_url(self) -> str:
+        base_url = self.config.api.anthropic_base_url or "https://api.anthropic.com"
+        return base_url.rstrip("/")
     
     async def generate_with_openai(self, prompt: str, system_prompt: str = None) -> str:
         """Generate content using OpenAI with retry logic and rate limiting"""
@@ -340,47 +463,38 @@ class MultiLLMGenerator:
                 if system_prompt:
                     messages.append({"role": "system", "content": system_prompt})
                 messages.append({"role": "user", "content": prompt})
-                
+
+                request_body = {
+                    "model": self.config.api.default_model_openai,
+                    "messages": messages,
+                }
+                request_ts = time.time()
+
                 # Handle different OpenAI models with appropriate token limits
                 if self.config.api.default_model_openai.startswith(("o1", "o3", "o4")):
                     self.logger.info(f"🔧 Using o-series format with max_completion_tokens=100000")
-                    response = await self.openai_client.chat.completions.create(
-                        model=self.config.api.default_model_openai,
-                        messages=messages,
-                        max_completion_tokens=100000  # o-series supports 100K+, maximizing for comprehensive generation
-                    )
+                    request_body["max_completion_tokens"] = 100000
+                    response = await self.openai_client.chat.completions.create(**request_body)
                 elif self.config.api.default_model_openai.startswith("gpt-5"):
                     self.logger.info(f"🔧 Using GPT-5 format with max_completion_tokens=50000")
-                    response = await self.openai_client.chat.completions.create(
-                        model=self.config.api.default_model_openai,
-                        messages=messages,
-                        max_completion_tokens=50000  # GPT-5 series optimized generation limit
-                        # Note: GPT-5 only supports default temperature (1.0), omitting temperature parameter
-                    )
+                    request_body["max_completion_tokens"] = 50000
+                    response = await self.openai_client.chat.completions.create(**request_body)
+                    # Note: GPT-5 only supports default temperature (1.0), omitting temperature parameter
                 elif self.config.api.default_model_openai.startswith(("gpt-4o", "gpt-4-turbo")):
                     self.logger.info(f"🔧 Using GPT-4o/turbo format with max_tokens=16384")
-                    response = await self.openai_client.chat.completions.create(
-                        model=self.config.api.default_model_openai,
-                        messages=messages,
-                        max_tokens=16384,  # GPT-4o/turbo max limit
-                        temperature=0.7
-                    )
+                    request_body["max_tokens"] = 16384
+                    request_body["temperature"] = 0.7
+                    response = await self.openai_client.chat.completions.create(**request_body)
                 elif self.config.api.default_model_openai.startswith("gpt-4"):
-                    self.logger.info(f"🔧 Using GPT-4 format with max_tokens=8192")  
-                    response = await self.openai_client.chat.completions.create(
-                        model=self.config.api.default_model_openai,
-                        messages=messages,
-                        max_tokens=8192,  # GPT-4 standard limit
-                        temperature=0.7
-                    )
+                    self.logger.info(f"🔧 Using GPT-4 format with max_tokens=8192")
+                    request_body["max_tokens"] = 8192
+                    request_body["temperature"] = 0.7
+                    response = await self.openai_client.chat.completions.create(**request_body)
                 else:
                     self.logger.info(f"🔧 Using standard format with max_tokens=4096")
-                    response = await self.openai_client.chat.completions.create(
-                        model=self.config.api.default_model_openai,
-                        messages=messages,
-                        max_tokens=4096,  # Conservative default
-                        temperature=0.7
-                    )
+                    request_body["max_tokens"] = 4096
+                    request_body["temperature"] = 0.7
+                    response = await self.openai_client.chat.completions.create(**request_body)
                 
                 content = response.choices[0].message.content
                 self.logger.info(f"📤 OpenAI response length: {len(content) if content else 0} chars")
@@ -392,6 +506,17 @@ class MultiLLMGenerator:
                     raise APIError("OpenAI", "EMPTY_RESPONSE", "OpenAI returned empty content")
                 else:
                     self.logger.info(f"✅ OpenAI returned valid content: {content[:100]}...")
+                response_ts = time.time()
+                usage = getattr(response, "usage", None)
+                if usage is not None and hasattr(usage, "model_dump"):
+                    usage = usage.model_dump()
+                response_body = {
+                    "id": getattr(response, "id", None),
+                    "model": getattr(response, "model", None),
+                    "usage": usage,
+                    "content": content,
+                }
+                self._log_openai_call(request_body, response_body, request_ts, response_ts)
                 return content
         
         return await retry_with_backoff(_make_openai_call, provider="OpenAI o3")
@@ -427,6 +552,18 @@ class MultiLLMGenerator:
                 full_prompt = prompt
                 if system_prompt:
                     full_prompt = f"{system_prompt}\n\n{prompt}"
+
+                request_body = {
+                    "model": model_name,
+                    "prompt": full_prompt,
+                    "generation_config": {
+                        "temperature": 0.7,
+                        "max_output_tokens": 500000,
+                        "top_p": 0.95,
+                        "top_k": 40,
+                    },
+                }
+                request_ts = time.time()
                 
                 # Run Gemini call in thread pool to avoid blocking the event loop
                 import asyncio
@@ -435,17 +572,100 @@ class MultiLLMGenerator:
                 content = response.text
                 if content is None:
                     raise APIError("Gemini 2.5 Pro", "EMPTY_RESPONSE", "Gemini returned empty content")
+                response_ts = time.time()
+                response_body = {"content": content}
+                self._log_google_call(request_body, response_body, request_ts, response_ts)
                 return content
         
         return await retry_with_backoff(_make_google_call, provider="Gemini 2.5 Pro")
     
     async def generate_with_claude(self, prompt: str, model_name: str = "claude-sonnet-4", system_prompt: str = None) -> str:
-        """Generate content using Claude models via Bearer Token authentication"""
+        """Generate content using Claude models via Anthropic API or Bearer Token authentication"""
         
         async def _make_claude_call():
-            """Direct Claude API call using Bearer token authentication"""
+            """Claude API call using Anthropic API or Bearer token authentication"""
+            provider = (self.config.api.claude_provider or "").strip().lower()
+            use_anthropic = provider == "anthropic"
+            use_bedrock = provider == "bedrock"
+            if provider and not (use_anthropic or use_bedrock):
+                raise APIError("Claude", "CONFIG_ERROR", f"Unsupported claude_provider '{provider}'. Use 'anthropic' or 'bedrock'.")
+
+            if use_anthropic or (not provider and self.config.api.anthropic_api_key):
+                # Direct Anthropic API
+                import aiohttp
+                from ..core.config import get_model_max_tokens
+
+                max_tokens = get_model_max_tokens(model_name)
+                url = f"{self._get_anthropic_base_url()}/v1/messages"
+                headers = {
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01",
+                    "X-Api-Key": self.config.api.anthropic_api_key,
+                }
+                body = {
+                    "model": model_name,
+                    "max_tokens": max_tokens,
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                if system_prompt:
+                    body["system"] = system_prompt
+
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        request_ts = time.time()
+                        async with session.post(url, headers=headers, json=body, timeout=aiohttp.ClientTimeout(total=600)) as response:
+                            response_ts = time.time()
+                            if response.status == 200:
+                                response_data = await response.json()
+                                parts = response_data.get("content", [])
+                                content = "".join(part.get("text", "") for part in parts if isinstance(part, dict))
+                                if not content or content.strip() == "":
+                                    raise APIError("Claude", "EMPTY_RESPONSE", f"Claude {model_name} returned empty content")
+                                self._log_claude_call(
+                                    model_name=model_name,
+                                    url=url,
+                                    headers=headers,
+                                    request_body=body,
+                                    response_body=response_data,
+                                    request_ts=request_ts,
+                                    response_ts=response_ts,
+                                    status_code=response.status,
+                                )
+                                return content
+                            error_text = await response.text()
+                            try:
+                                error_data = await response.json()
+                                error_message = error_data.get("message", error_text)
+                            except Exception:
+                                error_data = {"message": error_text}
+                                error_message = error_text
+                            if not error_message or error_message.strip() == "":
+                                error_message = f"HTTP {response.status} error with empty response"
+                            self._log_claude_call(
+                                model_name=model_name,
+                                url=url,
+                                headers=headers,
+                                request_body=body,
+                                response_body=error_data,
+                                request_ts=request_ts,
+                                response_ts=response_ts,
+                                status_code=response.status,
+                            )
+                            if response.status == 401:
+                                raise APIError("Claude", "AUTH_FAILED", f"Authentication failed for Claude {model_name}: {error_message}")
+                            elif response.status == 429:
+                                raise APIError("Claude", "RATE_LIMIT", f"Rate limit exceeded for Claude {model_name}: {error_message}")
+                            elif response.status == 400:
+                                raise APIError("Claude", "VALIDATION_ERROR", f"Validation error for Claude {model_name}: {error_message}")
+                            else:
+                                raise APIError("Claude", "API_ERROR", f"Claude API error for {model_name}: {error_message}")
+                except aiohttp.ClientError as e:
+                    raise APIError("Claude", "CONNECTION_ERROR", f"Connection error for Claude {model_name}: {str(e)}")
+                except asyncio.TimeoutError as e:
+                    raise APIError("Claude", "TIMEOUT_ERROR", f"Request timeout for Claude {model_name}: {str(e)}")
+
             if not self.config.api.claude_bearer_token:
-                raise APIError("Claude", "AUTH_FAILED", "Claude Bearer Token not configured")
+                raise APIError("Claude", "AUTH_FAILED", "Claude API key or bearer token not configured")
             
             # Import here to avoid dependency issues
             import json
@@ -485,6 +705,7 @@ class MultiLLMGenerator:
             
             try:
                 async with aiohttp.ClientSession() as session:
+                    request_ts = time.time()
                     async with session.post(url, headers=headers, json=body, timeout=aiohttp.ClientTimeout(total=600)) as response:
                         if response.status == 200:
                             response_data = await response.json()
@@ -493,6 +714,17 @@ class MultiLLMGenerator:
                                 content = response_data['content'][0]['text']
                                 if content is None or content.strip() == "":
                                     raise APIError("Claude", "EMPTY_RESPONSE", f"Claude {model_name} returned empty content")
+                                response_ts = time.time()
+                                self._log_claude_call(
+                                    model_name=model_name,
+                                    url=url,
+                                    headers=headers,
+                                    request_body=body,
+                                    response_body=response_data,
+                                    request_ts=request_ts,
+                                    response_ts=response_ts,
+                                    status_code=response.status,
+                                )
                                 return content
                             else:
                                 raise APIError("Claude", "INVALID_RESPONSE", f"Claude {model_name} returned invalid response format")
@@ -504,10 +736,23 @@ class MultiLLMGenerator:
                                 error_message = error_data.get('message', error_text)
                             except:
                                 error_message = error_text
+                                error_data = {"message": error_text}
                             
                             # Ensure we have a meaningful error message
                             if not error_message or error_message.strip() == "":
                                 error_message = f"HTTP {response.status} error with empty response"
+
+                            response_ts = time.time()
+                            self._log_claude_call(
+                                model_name=model_name,
+                                url=url,
+                                headers=headers,
+                                request_body=body,
+                                response_body=error_data,
+                                request_ts=request_ts,
+                                response_ts=response_ts,
+                                status_code=response.status,
+                            )
                             
                             if response.status == 401:
                                 raise APIError("Claude", "AUTH_FAILED", f"Authentication failed for Claude {model_name}: {error_message}")

@@ -14,10 +14,13 @@ class APIConfig:
     """Configuration for LLM APIs"""
     openai_api_key: Optional[str] = None
     openai_base_url: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    anthropic_base_url: Optional[str] = None
     google_api_key: Optional[str] = None
     huggingface_token: Optional[str] = None
     # Claude Bearer Token Authentication (replaces AWS credentials)
     claude_bearer_token: Optional[str] = None
+    claude_provider: Optional[str] = None
     
     # Rate limiting settings 
     max_requests_per_minute: int = 1000
@@ -192,10 +195,13 @@ class Config:
         api_config = yaml_data.get('api', {})
         api_config['openai_api_key'] = os.getenv('OPENAI_API_KEY') or api_config.get('openai_api_key')
         api_config['openai_base_url'] = os.getenv('OPENAI_BASE_URL') or api_config.get('openai_base_url')
+        api_config['anthropic_api_key'] = os.getenv('ANTHROPIC_API_KEY') or api_config.get('anthropic_api_key')
+        api_config['anthropic_base_url'] = os.getenv('ANTHROPIC_BASE_URL') or api_config.get('anthropic_base_url')
         api_config['google_api_key'] = os.getenv('GEMINI_API_KEY') or api_config.get('google_api_key')  # Using GEMINI_API_KEY as set in api.sh
         api_config['huggingface_token'] = os.getenv('HUGGINGFACE_TOKEN') or api_config.get('huggingface_token')
         # Claude Bearer Token Authentication (replaces AWS credentials)
         api_config['claude_bearer_token'] = os.getenv('CLAUDE_BEARER_TOKEN') or api_config.get('claude_bearer_token')
+        api_config['claude_provider'] = os.getenv('CLAUDE_PROVIDER') or api_config.get('claude_provider')
         
         return cls(
             api=APIConfig(**api_config),
