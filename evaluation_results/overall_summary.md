@@ -1,6 +1,6 @@
 # 📊 LoCoBench Overall Summary
 
-**Evaluation Date:** 2026-01-09 16:15:15
+**Evaluation Date:** 2026-01-09 16:20:59
 **Framework Version:** LoCoBench v1.0
 **Benchmark:** Feature Implementation (best run per provider/difficulty)
 
@@ -10,30 +10,30 @@
 
 ### CLAUDE-DIRECT
 
-| Difficulty | Model | Total Score | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---:|---:|---:|---:|---:|---|
-| easy | claude-sonnet-4-5-20250929 | 2.750 ⭐ | 0.477 | 0.507 | 0.765 | 0.538 | 25 | claudesonnet4520250929_1cats_easy_20260109_142748_evaluation_results |
-| medium | claude-sonnet-4-5-20250929 | 2.604 ⭐ | 0.457 | 0.465 | 0.736 | 0.513 | 44 | claudesonnet4520250929_1cats_medium_20260109_144631_evaluation_results |
-| hard | claude-sonnet-4-5-20250929 | 2.557 ⭐ | 0.451 | 0.452 | 0.719 | 0.515 | 68 | claudesonnet4520250929_1cats_hard_20260109_152750_evaluation_results |
-| expert | claude-sonnet-4-5-20250929 | 2.449 ⭐ | 0.434 | 0.427 | 0.701 | 0.478 | 99 | claudesonnet4520250929_1cats_expert_20260109_155637_evaluation_results |
+| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---|---:|---|---:|---:|---:|---:|---:|---|
+| easy | claude-sonnet-4-5-20250929 | 2.750 ⭐ | C (Fair) | 0.477 | 0.507 | 0.765 | 0.538 | 25 | [claudesonnet4520250929_1cats_easy_20260109_142748_evaluation_results](claude-direct/claudesonnet4520250929_1cats_easy_20260109_142748_evaluation_results_summary.md) |
+| medium | claude-sonnet-4-5-20250929 | 2.604 ⭐ | C (Fair) | 0.457 | 0.465 | 0.736 | 0.513 | 44 | [claudesonnet4520250929_1cats_medium_20260109_144631_evaluation_results](claude-direct/claudesonnet4520250929_1cats_medium_20260109_144631_evaluation_results_summary.md) |
+| hard | claude-sonnet-4-5-20250929 | 2.557 ⭐ | C (Fair) | 0.451 | 0.452 | 0.719 | 0.515 | 68 | [claudesonnet4520250929_1cats_hard_20260109_152750_evaluation_results](claude-direct/claudesonnet4520250929_1cats_hard_20260109_152750_evaluation_results_summary.md) |
+| expert | claude-sonnet-4-5-20250929 | 2.449 ⭐ | C (Fair) | 0.434 | 0.427 | 0.701 | 0.478 | 99 | [claudesonnet4520250929_1cats_expert_20260109_155637_evaluation_results](claude-direct/claudesonnet4520250929_1cats_expert_20260109_155637_evaluation_results_summary.md) |
 
 ### CLAUDE-PROXY
 
-| Difficulty | Model | Total Score | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---:|---:|---:|---:|---:|---|
-| easy | claude-sonnet-4-5-20250929 | 2.699 | 0.470 | 0.502 | 0.740 | 0.533 | 25 | claudesonnet4520250929_1cats_easy_20260108_175947_evaluation_results |
-| medium | claude-sonnet-4-5-20250929 | 2.540 | 0.446 | 0.460 | 0.711 | 0.494 | 44 | claudesonnet4520250929_1cats_medium_20260108_212633_evaluation_results |
-| hard | claude-sonnet-4-5-20250929 | 2.488 | 0.442 | 0.437 | 0.702 | 0.493 | 68 | claudesonnet4520250929_1cats_hard_20260108_214601_evaluation_results |
-| expert | claude-sonnet-4-5-20250929 | 2.432 | 0.433 | 0.424 | 0.696 | 0.468 | 100 | claudesonnet4520250929_1cats_expert_20260108_221907_evaluation_results |
+| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---|---:|---|---:|---:|---:|---:|---:|---|
+| easy | claude-sonnet-4-5-20250929 | 2.699 | C (Fair) | 0.470 | 0.502 | 0.740 | 0.533 | 25 | [claudesonnet4520250929_1cats_easy_20260108_175947_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_easy_20260108_175947_evaluation_results_summary.md) |
+| medium | claude-sonnet-4-5-20250929 | 2.540 | C (Fair) | 0.446 | 0.460 | 0.711 | 0.494 | 44 | [claudesonnet4520250929_1cats_medium_20260108_212633_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_medium_20260108_212633_evaluation_results_summary.md) |
+| hard | claude-sonnet-4-5-20250929 | 2.488 | C (Fair) | 0.442 | 0.437 | 0.702 | 0.493 | 68 | [claudesonnet4520250929_1cats_hard_20260108_214601_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_hard_20260108_214601_evaluation_results_summary.md) |
+| expert | claude-sonnet-4-5-20250929 | 2.432 | C (Fair) | 0.433 | 0.424 | 0.696 | 0.468 | 100 | [claudesonnet4520250929_1cats_expert_20260108_221907_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_expert_20260108_221907_evaluation_results_summary.md) |
 
 ### QWEN-NOVITA
 
-| Difficulty | Model | Total Score | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---:|---:|---:|---:|---:|---|
-| easy | qwen/qwen3-coder-30b-a3b-instruct | 2.300 | 0.381 | 0.397 | 0.718 | 0.447 | 74 | qwen3coder30ba3binstruct_1cats_easy_20260108_154904_evaluation_results |
-| medium | qwen/qwen3-coder-30b-a3b-instruct | 2.467 | 0.415 | 0.436 | 0.732 | 0.502 | 122 | qwen3coder30ba3binstruct_1cats_medium_20260108_160955_evaluation_results |
-| hard | qwen/qwen3-coder-30b-a3b-instruct | 2.511 | 0.424 | 0.449 | 0.733 | 0.513 | 146 | qwen3coder30ba3binstruct_1cats_hard_20260108_162651_evaluation_results |
-| expert | qwen/qwen3-coder-30b-a3b-instruct | 2.407 | 0.405 | 0.418 | 0.727 | 0.487 | 103 | qwen3coder30ba3binstruct_1cats_expert_20260108_155940_evaluation_results |
+| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---|---:|---|---:|---:|---:|---:|---:|---|
+| easy | qwen/qwen3-coder-30b-a3b-instruct | 2.300 | C (Fair) | 0.381 | 0.397 | 0.718 | 0.447 | 74 | [qwen3coder30ba3binstruct_1cats_easy_20260108_154904_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_easy_20260108_154904_evaluation_results_summary.md) |
+| medium | qwen/qwen3-coder-30b-a3b-instruct | 2.467 | C (Fair) | 0.415 | 0.436 | 0.732 | 0.502 | 122 | [qwen3coder30ba3binstruct_1cats_medium_20260108_160955_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_medium_20260108_160955_evaluation_results_summary.md) |
+| hard | qwen/qwen3-coder-30b-a3b-instruct | 2.511 | C (Fair) | 0.424 | 0.449 | 0.733 | 0.513 | 146 | [qwen3coder30ba3binstruct_1cats_hard_20260108_162651_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_hard_20260108_162651_evaluation_results_summary.md) |
+| expert | qwen/qwen3-coder-30b-a3b-instruct | 2.407 | C (Fair) | 0.405 | 0.418 | 0.727 | 0.487 | 103 | [qwen3coder30ba3binstruct_1cats_expert_20260108_155940_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_expert_20260108_155940_evaluation_results_summary.md) |
 
 ## 💡 Summary & Insights
 
