@@ -27,7 +27,7 @@ export CLAUDE_BEARER_TOKEN="your-claude-bearer-token"
 export ANTHROPIC_API_KEY="your-anthropic-api-key-here"
 # Optional: override base URL (default: https://api.anthropic.com)
 export ANTHROPIC_BASE_URL="https://api.anthropic.com"
-export CLAUDE_PROVIDER="anthropic"  # or "bedrock"
+# export CLAUDE_PROVIDER="anthropic"  # or "bedrock"
 
 # =============================================================================
 # 🏆 ELITE MODEL 3: Gemini 2.5 Pro (Direct API)  
