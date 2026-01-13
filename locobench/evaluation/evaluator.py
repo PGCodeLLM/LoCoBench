@@ -126,8 +126,12 @@ class LoCoBenchEvaluator:
                 .replace("-", "_")
                 .replace(".", "_")
                 .replace(" ", "_")
+                .replace(":", "_")
+                .replace(":free", "")
                 .lower()
             )
+
+            console.print(f"📂 Setting up request log for model: {model_name} -> {safe_model_name}")           
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             log_dir = Path("logs")
             log_dir.mkdir(parents=True, exist_ok=True)
@@ -147,7 +151,16 @@ class LoCoBenchEvaluator:
         # Model-specific checkpoint files to avoid conflicts between concurrent evaluations
         if model_name:
             # Sanitize model name for filename
-            safe_model_name = model_name.replace('-', '_').replace('.', '_').lower()
+            # safe_model_name = model_name.replace('-', '_').replace('.', '_').lower()
+            safe_model_name = (
+                model_name.replace("/", "_")
+                .replace("-", "_")
+                .replace(".", "_")
+                .replace(" ", "_")
+                .replace(":", "_")
+                .replace(":free", "")
+                .lower()
+            )
             self.checkpoint_file = intermediate_dir / f"evaluation_checkpoint_{safe_model_name}.json"
             self.incremental_file = intermediate_dir / f"evaluation_incremental_results_{safe_model_name}.json"
         else:
