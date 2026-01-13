@@ -269,11 +269,14 @@ def generate(config_path, phase, dry_run, force, max_concurrent):
 @click.option('--output-file', '-o', type=click.Path(), help='Output file for results (auto-generated if not specified)')
 @click.option('--no-save', is_flag=True, help='Skip saving results to file (display only)')
 @click.option('--no-resume', is_flag=True, help='Start fresh evaluation (ignore any existing checkpoint)')
+@click.option('--provider', type=click.Choice(['auto', 'openai-compatible']),
+              default='auto', show_default=True,
+              help='Override provider routing for all models')
 @click.option('--parallel', is_flag=True, help='Enable parallel model evaluation (faster but more resource intensive)')
 @click.option('--max-concurrent-models', type=int, default=2, help='Maximum number of models to evaluate concurrently (default: 2)')
 @click.option('--max-concurrent-scenarios', type=int, default=1, help='Maximum number of scenarios per model to evaluate concurrently (default: 1)')
 @click.option('--monitor', is_flag=True, help='Start web monitoring dashboard at http://localhost:8080')
-def evaluate(config_path, model, task_category, difficulty, output_file, no_save, no_resume, parallel, max_concurrent_models, max_concurrent_scenarios, monitor):
+def evaluate(config_path, model, task_category, difficulty, output_file, no_save, no_resume, provider, parallel, max_concurrent_models, max_concurrent_scenarios, monitor):
     """Evaluate models on LoCoBench benchmark"""
     console.print(Panel.fit("🧪 LoCoBench Evaluation", style="bold purple"))
     
@@ -289,6 +292,8 @@ def evaluate(config_path, model, task_category, difficulty, output_file, no_save
     
     try:
         config = Config.from_yaml(config_path)
+        if provider == 'openai-compatible':
+            config.api.openai_compatible = True
         
         from .evaluation.evaluator import run_evaluation
         evaluation_data = run_evaluation(config, model, task_category, difficulty, resume=not no_resume, parallel=parallel, max_concurrent_models=max_concurrent_models, max_concurrent_scenarios=max_concurrent_scenarios)

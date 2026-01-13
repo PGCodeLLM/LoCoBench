@@ -1,49 +1,36 @@
-# 📊 LoCoBench Overall Summary
+# 📊 LoCoBench Overall Summary (All Difficulties)
 
-**Evaluation Date:** 2026-01-09 16:20:59
+**Evaluation Date:** 2026-01-13 17:57:33
 **Framework Version:** LoCoBench v1.0
-**Benchmark:** Feature Implementation (best run per provider/difficulty)
+**Benchmark:** Feature Implementation (alldiff runs only)
 
-## 🏆 Model Performance by Difficulty
+## 🏆 Model Performance (All Difficulties)
 
-⭐ indicates the best score across all providers for that difficulty.
+⭐ indicates the best score across all providers (alldiff runs).
 
 ### CLAUDE-DIRECT
 
-| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---|---:|---:|---:|---:|---:|---|
-| easy | claude-sonnet-4-5-20250929 | 2.750 ⭐ | C (Fair) | 0.477 | 0.507 | 0.765 | 0.538 | 25 | [claudesonnet4520250929_1cats_easy_20260109_142748_evaluation_results](claude-direct/claudesonnet4520250929_1cats_easy_20260109_142748_evaluation_results_summary.md) |
-| medium | claude-sonnet-4-5-20250929 | 2.604 ⭐ | C (Fair) | 0.457 | 0.465 | 0.736 | 0.513 | 44 | [claudesonnet4520250929_1cats_medium_20260109_144631_evaluation_results](claude-direct/claudesonnet4520250929_1cats_medium_20260109_144631_evaluation_results_summary.md) |
-| hard | claude-sonnet-4-5-20250929 | 2.557 ⭐ | C (Fair) | 0.451 | 0.452 | 0.719 | 0.515 | 68 | [claudesonnet4520250929_1cats_hard_20260109_152750_evaluation_results](claude-direct/claudesonnet4520250929_1cats_hard_20260109_152750_evaluation_results_summary.md) |
-| expert | claude-sonnet-4-5-20250929 | 2.449 ⭐ | C (Fair) | 0.434 | 0.427 | 0.701 | 0.478 | 99 | [claudesonnet4520250929_1cats_expert_20260109_155637_evaluation_results](claude-direct/claudesonnet4520250929_1cats_expert_20260109_155637_evaluation_results_summary.md) |
+| Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| claude-opus-4-5-20251101 | 2.758 ⭐ | C (Fair) | 0.485 | 0.481 | 0.741 | 0.648 | 100 | [claudeopus4520251101_1cats_alldiff_20260113_152123_evaluation_results](claude-direct/claudeopus4520251101_1cats_alldiff_20260113_152123_evaluation_results_summary.md) |
 
 ### CLAUDE-PROXY
 
-| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---|---:|---:|---:|---:|---:|---|
-| easy | claude-sonnet-4-5-20250929 | 2.699 | C (Fair) | 0.470 | 0.502 | 0.740 | 0.533 | 25 | [claudesonnet4520250929_1cats_easy_20260108_175947_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_easy_20260108_175947_evaluation_results_summary.md) |
-| medium | claude-sonnet-4-5-20250929 | 2.540 | C (Fair) | 0.446 | 0.460 | 0.711 | 0.494 | 44 | [claudesonnet4520250929_1cats_medium_20260108_212633_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_medium_20260108_212633_evaluation_results_summary.md) |
-| hard | claude-sonnet-4-5-20250929 | 2.488 | C (Fair) | 0.442 | 0.437 | 0.702 | 0.493 | 68 | [claudesonnet4520250929_1cats_hard_20260108_214601_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_hard_20260108_214601_evaluation_results_summary.md) |
-| expert | claude-sonnet-4-5-20250929 | 2.432 | C (Fair) | 0.433 | 0.424 | 0.696 | 0.468 | 100 | [claudesonnet4520250929_1cats_expert_20260108_221907_evaluation_results](claude-proxy/claudesonnet4520250929_1cats_expert_20260108_221907_evaluation_results_summary.md) |
+| Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| claude-opus-4-5-20251101 | 2.657 | C (Fair) | 0.480 | 0.464 | 0.749 | 0.504 | 99 | [claudeopus4520251101_1cats_alldiff_20260113_174342_evaluation_results](claude-proxy/claudeopus4520251101_1cats_alldiff_20260113_174342_evaluation_results_summary.md) |
 
-### QWEN-NOVITA
+### QWEN
 
-| Difficulty | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
-|---|---|---:|---|---:|---:|---:|---:|---:|---|
-| easy | qwen/qwen3-coder-30b-a3b-instruct | 2.300 | C (Fair) | 0.381 | 0.397 | 0.718 | 0.447 | 74 | [qwen3coder30ba3binstruct_1cats_easy_20260108_154904_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_easy_20260108_154904_evaluation_results_summary.md) |
-| medium | qwen/qwen3-coder-30b-a3b-instruct | 2.467 | C (Fair) | 0.415 | 0.436 | 0.732 | 0.502 | 122 | [qwen3coder30ba3binstruct_1cats_medium_20260108_160955_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_medium_20260108_160955_evaluation_results_summary.md) |
-| hard | qwen/qwen3-coder-30b-a3b-instruct | 2.511 | C (Fair) | 0.424 | 0.449 | 0.733 | 0.513 | 146 | [qwen3coder30ba3binstruct_1cats_hard_20260108_162651_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_hard_20260108_162651_evaluation_results_summary.md) |
-| expert | qwen/qwen3-coder-30b-a3b-instruct | 2.407 | C (Fair) | 0.405 | 0.418 | 0.727 | 0.487 | 103 | [qwen3coder30ba3binstruct_1cats_expert_20260108_155940_evaluation_results](qwen-novita/qwen3coder30ba3binstruct_1cats_expert_20260108_155940_evaluation_results_summary.md) |
+| Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| qwen/qwen3-coder-30b-a3b-instruct | 2.736 | C (Fair) | 0.468 | 0.516 | 0.744 | 0.564 | 100 | [qwen3coder30ba3binstruct_1cats_alldiff_20260113_160313_evaluation_results](qwen/qwen3coder30ba3binstruct_1cats_alldiff_20260113_160313_evaluation_results_summary.md) |
 
 ## 💡 Summary & Insights
 
 - **Category:** Feature Implementation
-- **Selection Rule:** Best run per provider/difficulty by Total Score (from summary MD files)
-- **Global Best per Difficulty:**
-  - **easy**: claude-sonnet-4-5-20250929 (claude-direct) — 2.750
-  - **medium**: claude-sonnet-4-5-20250929 (claude-direct) — 2.604
-  - **hard**: claude-sonnet-4-5-20250929 (claude-direct) — 2.557
-  - **expert**: claude-sonnet-4-5-20250929 (claude-direct) — 2.449
+- **Selection Rule:** Best alldiff run per provider by Total Score (from summary MD files)
+- **Global Best:** claude-opus-4-5-20251101 (claude-direct) — 2.758
 
 ## 📖 Evaluation Framework
 

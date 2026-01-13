@@ -14,6 +14,7 @@ class APIConfig:
     """Configuration for LLM APIs"""
     openai_api_key: Optional[str] = None
     openai_base_url: Optional[str] = None
+    openai_compatible: Optional[bool] = None
     anthropic_api_key: Optional[str] = None
     anthropic_base_url: Optional[str] = None
     google_api_key: Optional[str] = None
@@ -195,6 +196,8 @@ class Config:
         api_config = yaml_data.get('api', {})
         api_config['openai_api_key'] = os.getenv('OPENAI_API_KEY') or api_config.get('openai_api_key')
         api_config['openai_base_url'] = os.getenv('OPENAI_BASE_URL') or api_config.get('openai_base_url')
+        if api_config.get('openai_compatible') is None and api_config.get('openai_base_url'):
+            api_config['openai_compatible'] = True
         api_config['anthropic_api_key'] = os.getenv('ANTHROPIC_API_KEY') or api_config.get('anthropic_api_key')
         api_config['anthropic_base_url'] = os.getenv('ANTHROPIC_BASE_URL') or api_config.get('anthropic_base_url')
         api_config['google_api_key'] = os.getenv('GEMINI_API_KEY') or api_config.get('google_api_key')  # Using GEMINI_API_KEY as set in api.sh

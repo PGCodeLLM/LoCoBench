@@ -2336,6 +2336,10 @@ Generate your response now:"""
             'claude-opus-4': 'claude-opus-4',              # High capability
             'claude-sonnet-3.7': 'claude-sonnet-3.7',      # Hybrid reasoning
             
+            # Claude 4.5 series (direct Anthropic model IDs)
+            'claude-sonnet-4-5-20250929': 'claude-sonnet-4-5-20250929',
+            'claude-opus-4-5-20251101': 'claude-opus-4-5-20251101',
+            
             # Note: Excluding audio/video/TTS-only models as they're not suitable for code evaluation:
             # - gpt-4o-audio-preview, gpt-4o-realtime-preview (audio focus)
             # - gpt-4o-mini-audio-preview, gpt-4o-mini-realtime-preview (audio focus)
@@ -2351,7 +2355,10 @@ Generate your response now:"""
             logger.warning(f"Model name is not a string: {type(model_name)} = {model_name}")
             model_name = str(model_name)
         
-        model_key = model_key_mapping.get(model_name.lower(), 'openai')
+        if self.config.api.openai_compatible:
+            model_key = 'openai'
+        else:
+            model_key = model_key_mapping.get(model_name.lower(), 'openai')
         
         # Retry logic for empty responses
         max_retries = 3
