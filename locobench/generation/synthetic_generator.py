@@ -26,7 +26,8 @@ from rich.progress import Progress, TaskID
 from ..core.config import Config
 from ..core.task import TaskCategory, DifficultyLevel
 from ..utils.rate_limiter import APIRateLimitManager
-
+import httpx
+http_client = httpx.Client(verify=False)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -348,8 +349,13 @@ class MultiLLMGenerator:
         """Initialize LLM API clients (OpenAI o3 + Gemini 2.5 Pro + Claude 4 via Bearer Token)"""
         # OpenAI o3
         openai_client_kwargs = {"api_key": self.config.api.openai_api_key}
+        # self.logger.info(f"🔑 OpenAI API Key: {self.config.api.openai_api_key}")
         if self.config.api.openai_base_url:
             openai_client_kwargs["base_url"] = self.config.api.openai_base_url
+
+
+        http_client = httpx.AsyncClient(verify=False)
+        openai_client_kwargs['http_client'] = http_client
         self.openai_client = openai.AsyncOpenAI(**openai_client_kwargs)
         
         # Gemini 2.5 Pro
