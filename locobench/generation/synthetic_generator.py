@@ -347,13 +347,16 @@ class MultiLLMGenerator:
     def setup_llm_clients(self):
         """Initialize LLM API clients (OpenAI o3 + Gemini 2.5 Pro + Claude 4 via Bearer Token)"""
         # OpenAI o3
-        openai_client_kwargs = {"api_key": self.config.api.openai_api_key}
-        if self.config.api.openai_base_url:
-            openai_client_kwargs["base_url"] = self.config.api.openai_base_url
-        self.openai_client = openai.AsyncOpenAI(**openai_client_kwargs)
+        self.openai_client = None
+        if self.config.api.openai_api_key:
+            openai_client_kwargs = {"api_key": self.config.api.openai_api_key}
+            if self.config.api.openai_base_url:
+                openai_client_kwargs["base_url"] = self.config.api.openai_base_url
+            self.openai_client = openai.AsyncOpenAI(**openai_client_kwargs)
         
         # Gemini 2.5 Pro
-        genai.configure(api_key=self.config.api.google_api_key)
+        if self.config.api.google_api_key:
+            genai.configure(api_key=self.config.api.google_api_key)
         
         # Claude Bearer Token (no additional setup needed - used directly in API calls)
         # Verification happens in generate_with_claude method
@@ -470,31 +473,21 @@ class MultiLLMGenerator:
                 }
                 request_ts = time.time()
 
-                # Handle different OpenAI models with appropriate token limits
-                if self.config.api.default_model_openai.startswith(("o1", "o3", "o4")):
-                    self.logger.info(f"🔧 Using o-series format with max_completion_tokens=100000")
-                    request_body["max_completion_tokens"] = 100000
-                    response = await self.openai_client.chat.completions.create(**request_body)
-                elif self.config.api.default_model_openai.startswith("gpt-5"):
-                    self.logger.info(f"🔧 Using GPT-5 format with max_completion_tokens=50000")
-                    request_body["max_completion_tokens"] = 50000
-                    response = await self.openai_client.chat.completions.create(**request_body)
-                    # Note: GPT-5 only supports default temperature (1.0), omitting temperature parameter
-                elif self.config.api.default_model_openai.startswith(("gpt-4o", "gpt-4-turbo")):
-                    self.logger.info(f"🔧 Using GPT-4o/turbo format with max_tokens=16384")
-                    request_body["max_tokens"] = 16384
-                    request_body["temperature"] = 0.7
-                    response = await self.openai_client.chat.completions.create(**request_body)
-                elif self.config.api.default_model_openai.startswith("gpt-4"):
-                    self.logger.info(f"🔧 Using GPT-4 format with max_tokens=8192")
-                    request_body["max_tokens"] = 8192
-                    request_body["temperature"] = 0.7
-                    response = await self.openai_client.chat.completions.create(**request_body)
+                # Standardize inference params across providers
+                target_max_tokens = 64000
+                target_temperature = 0.7
+                # Keep sampling params consistent across providers; use temperature only.
+
+                # Handle different OpenAI models with appropriate parameter names
+                if self.config.api.default_model_openai.startswith(("o1", "o3", "o4", "gpt-5")):
+                    self.logger.info(f"🔧 Using max_completion_tokens={target_max_tokens}")
+                    request_body["max_completion_tokens"] = target_max_tokens
                 else:
-                    self.logger.info(f"🔧 Using standard format with max_tokens=4096")
-                    request_body["max_tokens"] = 4096
-                    request_body["temperature"] = 0.7
-                    response = await self.openai_client.chat.completions.create(**request_body)
+                    self.logger.info(f"🔧 Using max_tokens={target_max_tokens}")
+                    request_body["max_tokens"] = target_max_tokens
+
+                request_body["temperature"] = target_temperature
+                response = await self.openai_client.chat.completions.create(**request_body)
                 
                 content = response.choices[0].message.content
                 self.logger.info(f"📤 OpenAI response length: {len(content) if content else 0} chars")
@@ -531,12 +524,10 @@ class MultiLLMGenerator:
             
             # Apply rate limiting
             async with await self.rate_limiter.acquire("google"):
-                # Configure generation parameters for high-quality code generation
+                # Configure generation parameters (standardized across providers)
                 generation_config = genai.types.GenerationConfig(
                     temperature=0.7,
-                    max_output_tokens=500000,  # Maximized for Gemini 2.5 Pro (supports 1M+)
-                    top_p=0.95,
-                    top_k=40
+                    max_output_tokens=64000,
                 )
                 
                 # Ensure proper model name format for Gemini API
@@ -595,7 +586,7 @@ class MultiLLMGenerator:
                 import aiohttp
                 from ..core.config import get_model_max_tokens
 
-                max_tokens = get_model_max_tokens(model_name)
+                max_tokens = 64000
                 url = f"{self._get_anthropic_base_url()}/v1/messages"
                 headers = {
                     "Content-Type": "application/json",
@@ -605,6 +596,7 @@ class MultiLLMGenerator:
                 body = {
                     "model": model_name,
                     "max_tokens": max_tokens,
+                    "temperature": 0.7,
                     "messages": [{"role": "user", "content": prompt}],
                 }
                 if system_prompt:
@@ -674,13 +666,13 @@ class MultiLLMGenerator:
             
             # Convert human-friendly name to Claude model ID
             claude_model_id = get_claude_model_id(model_name)
-            max_tokens = get_model_max_tokens(model_name)
+            max_tokens = 64000
             
             # Prepare the request body using Claude API format
             body = {
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": max_tokens,
-                "temperature": 0.5,
+                "temperature": 0.7,
                 "messages": []
             }
             

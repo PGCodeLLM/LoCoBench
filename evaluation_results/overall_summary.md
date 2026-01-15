@@ -1,6 +1,6 @@
 # 📊 LoCoBench Overall Summary (All Difficulties)
 
-**Evaluation Date:** 2026-01-13 17:57:33
+**Evaluation Date:** 2026-01-15 18:08:11
 **Framework Version:** LoCoBench v1.0
 **Benchmark:** Feature Implementation (alldiff runs only)
 
@@ -12,25 +12,25 @@
 
 | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
 |---|---:|---|---:|---:|---:|---:|---:|---|
-| claude-opus-4-5-20251101 | 2.758 ⭐ | C (Fair) | 0.485 | 0.481 | 0.741 | 0.648 | 100 | [claudeopus4520251101_1cats_alldiff_20260113_152123_evaluation_results](claude-direct/claudeopus4520251101_1cats_alldiff_20260113_152123_evaluation_results_summary.md) |
+| claude-opus-4-5-20251101 | 2.855 | C (Fair) | 0.513 | 0.453 | 0.770 | 0.762 | 100 | [claudeopus4520251101_1cats_alldiff_20260115_180811_evaluation_results](claude-direct/claudeopus4520251101_1cats_alldiff_20260115_180811_evaluation_results_summary.md) |
 
 ### CLAUDE-PROXY
 
 | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
 |---|---:|---|---:|---:|---:|---:|---:|---|
-| claude-opus-4-5-20251101 | 2.657 | C (Fair) | 0.480 | 0.464 | 0.749 | 0.504 | 99 | [claudeopus4520251101_1cats_alldiff_20260113_174342_evaluation_results](claude-proxy/claudeopus4520251101_1cats_alldiff_20260113_174342_evaluation_results_summary.md) |
+| claude-opus-4-5-20251101 | 2.942 ⭐ | C (Fair) | 0.516 | 0.501 | 0.772 | 0.770 | 100 | [claudeopus4520251101_1cats_alldiff_20260115_021130_evaluation_results](claude-proxy/claudeopus4520251101_1cats_alldiff_20260115_021130_evaluation_results_summary.md) |
 
 ### QWEN
 
 | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
 |---|---:|---|---:|---:|---:|---:|---:|---|
-| qwen/qwen3-coder-30b-a3b-instruct | 2.736 | C (Fair) | 0.468 | 0.516 | 0.744 | 0.564 | 100 | [qwen3coder30ba3binstruct_1cats_alldiff_20260113_160313_evaluation_results](qwen/qwen3coder30ba3binstruct_1cats_alldiff_20260113_160313_evaluation_results_summary.md) |
+| qwen3_coder_30b | 2.775 | C (Fair) | 0.472 | 0.530 | 0.752 | 0.568 | 99 | [qwen3coder30b_1cats_alldiff_20260114_223232_evaluation_results](qwen/qwen3coder30b_1cats_alldiff_20260114_223232_evaluation_results_summary.md) |
 
 ## 💡 Summary & Insights
 
 - **Category:** Feature Implementation
 - **Selection Rule:** Best alldiff run per provider by Total Score (from summary MD files)
-- **Global Best:** claude-opus-4-5-20251101 (claude-direct) — 2.758
+- **Global Best:** claude-opus-4-5-20251101 (claude-proxy) — 2.942
 
 ## 📖 Evaluation Framework
 
