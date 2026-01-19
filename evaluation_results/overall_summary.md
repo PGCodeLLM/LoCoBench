@@ -1,6 +1,6 @@
 # 📊 LoCoBench Overall Summary (All Difficulties)
 
-**Evaluation Date:** 2026-01-15 18:08:11
+**Evaluation Date:** 2026-01-19 17:59:20
 **Framework Version:** LoCoBench v1.0
 **Benchmark:** Feature Implementation (alldiff runs only)
 
@@ -25,6 +25,12 @@
 | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
 |---|---:|---|---:|---:|---:|---:|---:|---|
 | qwen3_coder_30b | 2.775 | C (Fair) | 0.472 | 0.530 | 0.752 | 0.568 | 99 | [qwen3coder30b_1cats_alldiff_20260114_223232_evaluation_results](qwen/qwen3coder30b_1cats_alldiff_20260114_223232_evaluation_results_summary.md) |
+
+### IFLOWROME
+
+| Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| iflow_rome | 2.725 | C (Fair) | 0.469 | 0.510 | 0.730 | 0.583 | 97 | [iflowrome_1cats_alldiff_20260119_175920_evaluation_results](iflowrome/iflowrome_1cats_alldiff_20260119_175920_evaluation_results_summary.md) |
 
 ## 💡 Summary & Insights
 
