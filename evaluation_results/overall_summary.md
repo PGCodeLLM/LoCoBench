@@ -1,6 +1,6 @@
 # 📊 LoCoBench Overall Summary (All Difficulties)
 
-**Evaluation Date:** 2026-01-20 23:31:02
+**Evaluation Date:** 2026-01-21 09:29:09
 **Framework Version:** LoCoBench v1.0
 **Benchmark:** Feature Implementation (alldiff runs only)
 
@@ -37,6 +37,12 @@
 | Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
 |---|---:|---|---:|---:|---:|---:|---:|---|
 | z-ai/glm-4.7 | 2.798 | C (Fair) | 0.489 | 0.486 | 0.763 | 0.659 | 93 | [glm4.7_1cats_alldiff_20260120_233102_evaluation_results](glm4.7/glm4.7_1cats_alldiff_20260120_233102_evaluation_results_summary.md) |
+
+### DEEPSEEKV3.2
+
+| Model | Total Score | Grade | Software Engineering | Functional Correctness | Code Quality | Long-Context Util | Scenarios | Run |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| deepseek/deepseek-v3.2 | 2.868 | C (Fair) | 0.495 | 0.489 | 0.799 | 0.692 | 85 | [deepseekv3.2_1cats_alldiff_20260121_092909_evaluation_results](deepseekv3.2/deepseekv3.2_1cats_alldiff_20260121_092909_evaluation_results_summary.md) |
 
 ## 💡 Summary & Insights
 
