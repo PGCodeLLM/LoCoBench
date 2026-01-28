@@ -56,6 +56,8 @@ cp api.sh.template api.sh
 # Edit api.sh with your API keys
 export OPENAI_API_KEY="your_openai_key_here"
 export OPENAI_BASE_URL="https://your-openai-compatible-endpoint/v1"  # Optional
+# Some gateways use a query param routing format, e.g.
+# export OPENAI_BASE_URL="http://<host>/path/to/>?path=/v1/chat/completions"
 export ANTHROPIC_API_KEY="your_anthropic_key_here"
 export CLAUDE_PROVIDER="anthropic"  # Optional: set only if you need to force Anthropic vs Bedrock
 export GOOGLE_API_KEY="your_google_key_here"

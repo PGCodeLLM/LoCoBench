@@ -375,7 +375,21 @@ class MultiLLMGenerator:
         base_url = self.config.api.openai_base_url or "https://api.openai.com/v1"
         return base_url.rstrip("/")
 
-    def _log_openai_call(self, request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int = 200) -> None:
+    def _get_openai_chat_completions_url(self) -> str:
+        base_url = self._get_openai_base_url()
+        if "path=/v1/chat/completions" in base_url or "path=%2Fv1%2Fchat%2Fcompletions" in base_url:
+            return base_url
+        if base_url.endswith("/v1/chat/completions") or base_url.endswith("/chat/completions"):
+            return base_url
+        if base_url.endswith("/v1"):
+            return f"{base_url}/chat/completions"
+        return f"{base_url}/v1/chat/completions"
+
+    def _use_openai_direct_http(self) -> bool:
+        base_url = self.config.api.openai_base_url or ""
+        return "?" in base_url
+
+    def _log_openai_call(self, request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int = 200, url: str = None) -> None:
         entry = {
             "run": {
                 "model": self.config.api.default_model_openai,
@@ -385,7 +399,7 @@ class MultiLLMGenerator:
             "request": {
                 "timestamp": request_ts,
                 "method": "POST",
-                "url": f"{self._get_openai_base_url()}/chat/completions",
+                "url": url or f"{self._get_openai_base_url()}/chat/completions",
                 "headers": {"authorization": "[REDACTED]", "content-type": "application/json"},
                 "body": request_body,
             },
@@ -487,6 +501,45 @@ class MultiLLMGenerator:
                     request_body["max_tokens"] = target_max_tokens
 
                 request_body["temperature"] = target_temperature
+                if self._use_openai_direct_http():
+                    import aiohttp
+                    url = self._get_openai_chat_completions_url()
+                    headers = {
+                        "Authorization": f"Bearer {self.config.api.openai_api_key}",
+                        "Content-Type": "application/json",
+                    }
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(url, headers=headers, json=request_body, timeout=aiohttp.ClientTimeout(total=600)) as response:
+                            response_ts = time.time()
+                            response_data = await response.json()
+                            if response.status != 200:
+                                error_message = response_data.get("error", {}).get("message") or response_data.get("message") or str(response_data)
+                                self._log_openai_call(request_body, response_data, request_ts, response_ts, status_code=response.status, url=url)
+                                raise APIError("OpenAI", "API_ERROR", f"OpenAI API error for {self.config.api.default_model_openai}: {error_message}")
+
+                            content = None
+                            choices = response_data.get("choices") or []
+                            if choices:
+                                message = choices[0].get("message") or {}
+                                content = message.get("content")
+                                if isinstance(content, list):
+                                    content = "".join(part.get("text", "") for part in content if isinstance(part, dict))
+                            if content is None:
+                                content = response_data.get("content")
+
+                            if content is None or (isinstance(content, str) and content.strip() == ""):
+                                self._log_openai_call(request_body, response_data, request_ts, response_ts, status_code=response.status, url=url)
+                                raise APIError("OpenAI", "EMPTY_RESPONSE", "OpenAI returned empty content")
+
+                            response_body = {
+                                "id": response_data.get("id"),
+                                "model": response_data.get("model"),
+                                "usage": response_data.get("usage"),
+                                "content": content,
+                            }
+                            self._log_openai_call(request_body, response_body, request_ts, response_ts, status_code=response.status, url=url)
+                            return content
+
                 response = await self.openai_client.chat.completions.create(**request_body)
                 
                 content = response.choices[0].message.content
