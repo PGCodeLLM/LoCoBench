@@ -387,6 +387,8 @@ class MultiLLMGenerator:
 
     def _use_openai_direct_http(self) -> bool:
         base_url = self.config.api.openai_base_url or ""
+        if self.config.api.openai_custom_header_name and self.config.api.openai_custom_header_value:
+            return True
         return "?" in base_url
 
     def _log_openai_call(self, request_body: Dict[str, Any], response_body: Dict[str, Any], request_ts: float, response_ts: float, status_code: int = 200, url: str = None) -> None:
@@ -469,7 +471,8 @@ class MultiLLMGenerator:
         
         async def _make_openai_call():
             if not self.config.api.openai_api_key:
-                raise APIError("OpenAI", "AUTH_FAILED", "OpenAI API key not configured")
+                if not (self.config.api.openai_custom_header_name and self.config.api.openai_custom_header_value):
+                    raise APIError("OpenAI", "AUTH_FAILED", "OpenAI API key not configured")
             
             self.logger.info(f"🤖 Making OpenAI call, model: {self.config.api.default_model_openai}")
             self.logger.info(f"📝 Prompt length: {len(prompt)} chars, System prompt: {len(system_prompt) if system_prompt else 0} chars")
@@ -504,10 +507,11 @@ class MultiLLMGenerator:
                 if self._use_openai_direct_http():
                     import aiohttp
                     url = self._get_openai_chat_completions_url()
-                    headers = {
-                        "Authorization": f"Bearer {self.config.api.openai_api_key}",
-                        "Content-Type": "application/json",
-                    }
+                    headers = {"Content-Type": "application/json"}
+                    if self.config.api.openai_api_key:
+                        headers["Authorization"] = f"Bearer {self.config.api.openai_api_key}"
+                    if self.config.api.openai_custom_header_name and self.config.api.openai_custom_header_value:
+                        headers[self.config.api.openai_custom_header_name] = self.config.api.openai_custom_header_value
                     async with aiohttp.ClientSession() as session:
                         async with session.post(url, headers=headers, json=request_body, timeout=aiohttp.ClientTimeout(total=600)) as response:
                             response_ts = time.time()

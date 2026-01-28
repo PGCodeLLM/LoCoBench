@@ -15,6 +15,8 @@ class APIConfig:
     openai_api_key: Optional[str] = None
     openai_base_url: Optional[str] = None
     openai_compatible: Optional[bool] = None
+    openai_custom_header_name: Optional[str] = None
+    openai_custom_header_value: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     anthropic_base_url: Optional[str] = None
     google_api_key: Optional[str] = None
@@ -196,6 +198,8 @@ class Config:
         api_config = yaml_data.get('api', {})
         api_config['openai_api_key'] = os.getenv('OPENAI_API_KEY') or api_config.get('openai_api_key')
         api_config['openai_base_url'] = os.getenv('OPENAI_BASE_URL') or api_config.get('openai_base_url')
+        api_config['openai_custom_header_name'] = os.getenv('OPENAI_CUSTOM_HEADER_NAME') or api_config.get('openai_custom_header_name')
+        api_config['openai_custom_header_value'] = os.getenv('OPENAI_CUSTOM_HEADER_VALUE') or api_config.get('openai_custom_header_value')
         if api_config.get('openai_compatible') is None and api_config.get('openai_base_url'):
             api_config['openai_compatible'] = True
         api_config['anthropic_api_key'] = os.getenv('ANTHROPIC_API_KEY') or api_config.get('anthropic_api_key')
